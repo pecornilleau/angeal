@@ -1,0 +1,5 @@
+(library
+ (public_name angeal)
+ (name angeal)
+ (inline_tests)
+ (preprocess (pps ppx_inline_test))
