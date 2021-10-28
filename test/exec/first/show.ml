@@ -1,6 +1,6 @@
 open Angeal
 
-open Mtree
+open Mtree_first
 let show t = 
     Format.printf "----------------\n";
     Mtprint.pprint t;
@@ -24,3 +24,5 @@ let _ = show (r_build (upto 16))
 let _ = show (r_build (upto 16))
 let _ = show (r_build (upto 16))
 let _ = show (r_build (upto 16))
+
+let _ = Printf.printf "%010i" 105

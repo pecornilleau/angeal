@@ -1,0 +1,3 @@
+(test
+ (name second)
+ (libraries angeal))
