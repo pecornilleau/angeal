@@ -41,3 +41,18 @@ let r_build l =
     in  match l with
     | [] -> L (-1)
     | i::q ->  r_build_rec (L i) q
+
+    let pprint t = 
+    let rec loop n t =
+        let spaces = String.make (2*n) ' ' in
+        match t with 
+            | L i ->        Printf.printf "%s%d\n" spaces i
+            | Nu (_,t') ->  Printf.printf "%s%c " spaces '-'; 
+                            loop 0  t';
+                            (* printf "%s%c\n" spaces '/' *)
+            | N(_,t1,t2) ->
+                            loop (n+1)  t1;
+                            Printf.printf "%s%c\n" spaces '<'; 
+                            loop (n+1)  t2
+    in
+    loop 0 t    
