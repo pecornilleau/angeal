@@ -6,17 +6,18 @@ let show ?(b = true) t =
     if b then Mtprint.pprint t;
     Format.printf "check -> %b\n" (check t);
     Format.printf "depth -> %i\n" (depth t);
-    Format.printf "size -> %i\n" (size t)
-let _ = show (L 1)
-let _ = show (L 2)
+    Format.printf "size -> %i\n" (size t);
+    Format.printf "leafs -> %i\n" (leaf_count t)
+let _ = show (Leaf 1)
+let _ = show (Leaf 2)
 
-let tree_s_ok = build_node (L 1) (L 2)
+let tree_s_ok = build_node (Leaf 1) (Leaf 2)
 let _ = show tree_s_ok
 
-let tree_d_ok = build_node tree_s_ok (L 1)
+let tree_d_ok = build_node tree_s_ok (Leaf 1)
 let _ = show tree_d_ok
 
-let tree_d_ok2 = build_node tree_s_ok (L 2)
+let tree_d_ok2 = build_node tree_s_ok (Leaf 2)
 let _ = show tree_d_ok2
 
 let _ = show  (build_node tree_d_ok tree_d_ok2)
@@ -26,7 +27,7 @@ let _ = show (build [1;2;3;4])
 let _ = show (build [1;2;3;4])
 let _ = show (build [1;2;3;4])
 
-let rec upto n = if n == 0 then [0] else n::(upto (n-1))
+let rec upto n = if n == 1 then [1] else n::(upto (n-1))
     
 let _ = Format.print_string "---- 2^4 leafs ------"
 let _ = show  (build (upto 16))

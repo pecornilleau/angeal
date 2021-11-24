@@ -1,35 +1,35 @@
 
 type h = string
+type 'a mt = Leaf of 'a |  Node of h * 'a mt * 'a mt
+
+
+(* **************************** *)
+(* hash definition *)
 let (^) a b = a^b 
 let hash v= Printf.sprintf "%010i" (Hashtbl.hash v)
 let print_hash h = Printf.sprintf "%s" h
+let dhash h1 h2 = hash (h1^h2)
 
 let%test "hash size" =
   (String.length (hash 0)) = 10
 let%test "hash size 2" =
   (String.length (hash "ceci est une chaine un peu plus longue")) = 10
 
-
-
-
-type 'a mt = L of 'a |  N of h * 'a mt * 'a mt
-
+(* **************************** *)
+(* hash manipulation *)
 let get_hash = function
-    | L i -> hash i
-    | N (h,_,_) -> h
+    | Leaf i -> hash i
+    | Node (h,_,_) -> h
 
-let bhash t1 t2 = hash ((get_hash t1)^(get_hash t2))
+let dhash_tree t1 t2 = dhash (get_hash t1) (get_hash t2)
 
+(* **************************** *)
+(* tree building *)
 let build_node t1 t2 =
-    N(bhash t1 t2, t1,t2)
+    Node(dhash_tree t1 t2, t1,t2)
 
 let%test "build" = 
-    (get_hash (build_node (L 1) (L 2))) = (hash ((hash 1)^(hash 2)))
-
-
-let rec check tree = match tree with
-    | L _ -> true
-    | N (h,t1,t2) -> h = bhash t1 t2 && check t1 && check t2
+    (get_hash (build_node (Leaf 1) (Leaf 2))) = (hash ((hash 1)^(hash 2)))
 
 (* Random insertion : not quite balance but close enough *)
 module Rand =
@@ -38,8 +38,8 @@ struct
     let r_goleft () = Random.self_init (); Random.int 100 < 50
 
     let rec insert v t = match t with
-        | L i -> build_node (L v) (L i)
-        | N(_,t1,t2) -> 
+        | Leaf i -> build_node (Leaf v) (Leaf i)
+        | Node(_,t1,t2) -> 
             if r_goleft ()
             then 
                 let t1' = insert v t1 in
@@ -50,7 +50,7 @@ struct
 
     let rec build = function
         | [] -> raise (Failure "no empty merkle")
-        | [i] -> L i
+        | [i] -> Leaf i
         | i::q -> 
             let t = build q in
             insert i t 
@@ -63,25 +63,56 @@ include Rand
 
 
 
-
+(* **************************** *)
+(* binary tree operations *)
 let rec depth = function
-    | L _ -> 1
-    | N(_,t1,t2) -> 1 + max (depth t1) (depth t2)
+    | Leaf _ -> 1
+    | Node(_,t1,t2) -> 1 + max (depth t1) (depth t2)
 
 let%test "depth" =
-    3 = (depth (build_node (L 1) (build_node (L 2) (L 3))))
+    3 = (depth (build_node (Leaf 1) (build_node (Leaf 2) (Leaf 3))))
 
 let rec leaf_count = function
-    | L _ -> 1
-    | N (_,t1,t2) -> (leaf_count t1) + (leaf_count t2)
+    | Leaf _ -> 1
+    | Node (_,t1,t2) -> (leaf_count t1) + (leaf_count t2)
 
 let%test "leaf_count" =
-    3 = (leaf_count (build_node (L 1) (build_node (L 2) (L 3))))
+    3 = (leaf_count (build_node (Leaf 1) (build_node (Leaf 2) (Leaf 3))))
 
 let rec size = function
-    | L _ -> 1
-    | N(_,t1,t2) -> 1 + (size t1) + (size t2)
+    | Leaf _ -> 1
+    | Node(_,t1,t2) -> 1 + (size t1) + (size t2)
     
 let%test "size" =
-    5 = (size (build_node (L 1) (build_node (L 2) (L 3))))
+    5 = (size (build_node (Leaf 1) (build_node (Leaf 2) (Leaf 3))))
 
+
+
+(* **************************** *)
+(* checking *)
+let rec check tree = match tree with
+    | Leaf _ -> true
+    | Node (h,t1,t2) -> h = dhash_tree t1 t2 && check t1 && check t2
+
+
+type side = L | R
+
+(** - trail is the inverted list of the choices to make to reach data
+    - hashes is the list of hashes needed on the way back to the root 
+*)  
+let check_is_at root hashes trail data =
+    let rec follow hashes trail last_h = match (hashes,trail) with
+        | h::hashes',c::trail' ->
+            begin
+                match c with
+                    | L -> 
+                        (* we come from the left *)
+                        follow hashes' trail' (dhash last_h h)
+                    | R -> 
+                        follow hashes' trail' (dhash h last_h)
+            end
+        | [],[] -> last_h
+        | _ -> raise (Failure "inconsistent nb of hashes for given trail")
+    in
+    let computed_root = follow hashes trail (hash data) in
+    computed_root = root

@@ -11,12 +11,12 @@ let () =
   let open Alcotest in
   run "basic" [
       "check", [
-          test_case ""     `Quick (check_ok (L 1));
-          test_case ""     `Quick (check_ok (N (hash ((hash 1)^(hash 2)),L 1,L 2) ));          
+          test_case ""     `Quick (check_ok (Leaf 1));
+          test_case ""     `Quick (check_ok (Node (hash ((hash 1)^(hash 2)),Leaf 1,Leaf 2) ));          
 
-          test_case ""     `Quick (check_ko (N (hash ((hash 1)^(hash 2)),L 3,L 2) ));
-          test_case ""     `Quick (check_ko (N (hash ((hash 1)^(hash 2)),L 1,L 3) ));
-          test_case ""     `Quick (check_ko (N ((hash 1)^(hash 2),L 1,L 2) ));
+          test_case ""     `Quick (check_ko (Node (hash ((hash 1)^(hash 2)),Leaf 3,Leaf 2) ));
+          test_case ""     `Quick (check_ko (Node (hash ((hash 1)^(hash 2)),Leaf 1,Leaf 3) ));
+          test_case ""     `Quick (check_ko (Node ((hash 1)^(hash 2),Leaf 1,Leaf 2) ));
         ];
       "random", [
           test_case ""     `Quick (check_ok (build (upto 16)));
