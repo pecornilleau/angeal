@@ -19,8 +19,8 @@ let () =
           test_case ""     `Quick (check_ko (N ((hash 1)^(hash 2),L 1,L 2) ));
         ];
       "random", [
-          test_case ""     `Quick (check_ok (r_build (upto 16)));
-          test_case ""     `Quick (check_ok (r_build (upto 16)));
-          test_case ""     `Quick (check_ok (r_build (upto 16)));
+          test_case ""     `Quick (check_ok (build (upto 16)));
+          test_case ""     `Quick (check_ok (build (upto 16)));
+          test_case ""     `Quick (check_ok (build (upto 16)));
       ];
     ];

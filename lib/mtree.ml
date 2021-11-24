@@ -20,37 +20,43 @@ let get_hash = function
 
 let bhash t1 t2 = hash ((get_hash t1)^(get_hash t2))
 
-let build t1 t2 =
+let build_node t1 t2 =
     N(bhash t1 t2, t1,t2)
 
 let%test "build" = 
-    (get_hash (build (L 1) (L 2))) = (hash ((hash 1)^(hash 2)))
+    (get_hash (build_node (L 1) (L 2))) = (hash ((hash 1)^(hash 2)))
 
 
 let rec check tree = match tree with
     | L _ -> true
     | N (h,t1,t2) -> h = bhash t1 t2 && check t1 && check t2
 
-let goleft () = Random.self_init (); Random.int 100 < 50
+(* Random insertion : not quite balance but close enough *)
+module Rand =
+struct
+    (* heads insert to the left, tails insert to the right *)
+    let r_goleft () = Random.self_init (); Random.int 100 < 50
 
+    let rec insert v t = match t with
+        | L i -> build_node (L v) (L i)
+        | N(_,t1,t2) -> 
+            if r_goleft ()
+            then 
+                let t1' = insert v t1 in
+                build_node t1' t2
+            else 
+                let t2' = insert v t2 in
+                build_node t1 t2'
 
-let rec r_insert v t = match t with
-    | L i -> build (L v) (L i)
-    | N(_,t1,t2) -> 
-        if goleft ()
-        then 
-            let t1' = r_insert v t1 in
-            build t1' t2
-        else 
-            let t2' = r_insert v t2 in
-            build t1 t2'
+    let rec build = function
+        | [] -> raise (Failure "no empty merkle")
+        | [i] -> L i
+        | i::q -> 
+            let t = build q in
+            insert i t 
+end
+include Rand
 
-let rec r_build = function
-    | [] -> raise (Failure "no empty merkle")
-    | [i] -> L i
-    | i::q -> 
-        let t = r_build q in
-        r_insert i t 
 
 
 
@@ -63,19 +69,19 @@ let rec depth = function
     | N(_,t1,t2) -> 1 + max (depth t1) (depth t2)
 
 let%test "depth" =
-    3 = (depth (build (L 1) (build (L 2) (L 3))))
+    3 = (depth (build_node (L 1) (build_node (L 2) (L 3))))
 
-let rec leaf_nb = function
+let rec leaf_count = function
     | L _ -> 1
-    | N (_,t1,t2) -> (leaf_nb t1) + (leaf_nb t2)
+    | N (_,t1,t2) -> (leaf_count t1) + (leaf_count t2)
 
-let%test "leaf_nb" =
-    3 = (leaf_nb (build (L 1) (build (L 2) (L 3))))
+let%test "leaf_count" =
+    3 = (leaf_count (build_node (L 1) (build_node (L 2) (L 3))))
 
 let rec size = function
     | L _ -> 1
     | N(_,t1,t2) -> 1 + (size t1) + (size t2)
     
 let%test "size" =
-    5 = (size (build (L 1) (build (L 2) (L 3))))
+    5 = (size (build_node (L 1) (build_node (L 2) (L 3))))
 

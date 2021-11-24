@@ -6,9 +6,9 @@ val hash : 'b -> h
 val bhash : 'a mt -> 'a mt -> h
 val get_hash : 'a mt -> h
 val check : 'a mt -> bool
-val build : 'a mt -> 'a mt -> 'a mt
-val r_insert : 'a -> 'a mt -> 'a mt
-val r_build : 'a list -> 'a mt
+val build_node : 'a mt -> 'a mt -> 'a mt
+val insert : 'a -> 'a mt -> 'a mt
+val build : 'a list -> 'a mt
 val depth : 'a mt -> int
 val size : 'a mt -> int
-val leaf_nb : 'a mt -> int
+val leaf_count : 'a mt -> int
