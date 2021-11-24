@@ -1,3 +1,0 @@
-(executable
- (name show)
- (libraries alcotest angeal))
