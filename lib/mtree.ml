@@ -97,22 +97,29 @@ let rec check tree = match tree with
 
 type side = L | R
 
-(** - trail is the inverted list of the choices to make to reach data
-    - hashes is the list of hashes needed on the way back to the root 
+(** 
+check_is_at root hashes trail data
+- hashes is the list of hashes needed on the way back to the root 
+- trail is the inverted list of the choices to make to reach data
 *)  
-let check_is_at root hashes trail data =
+let check_is_at ?(debug=false) root hashes trail data =
     let rec follow hashes trail last_h = match (hashes,trail) with
         | h::hashes',c::trail' ->
             begin
                 match c with
                     | L -> 
                         (* we come from the left *)
+                        if debug then Printf.printf "(%s) %s\n" last_h h;
                         follow hashes' trail' (dhash last_h h)
                     | R -> 
+                        if debug then Printf.printf "%s (%s)\n" h last_h;
                         follow hashes' trail' (dhash h last_h)
             end
         | [],[] -> last_h
         | _ -> raise (Failure "inconsistent nb of hashes for given trail")
     in
     let computed_root = follow hashes trail (hash data) in
+    if debug then Printf.printf "root? %s\n" computed_root;
+    if debug then Printf.printf "root %s\n" root;
     computed_root = root
+
