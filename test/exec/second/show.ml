@@ -1,11 +1,12 @@
 open Angeal
 
 open Mtree
-let show t = 
+let show ?(b = true) t = 
     Format.printf "----------------\n";
-    Mtprint.pprint t;
-    Format.printf "-> %b\n" (check t)
-
+    if b then Mtprint.pprint t;
+    Format.printf "check -> %b\n" (check t);
+    Format.printf "depth -> %i\n" (depth t);
+    Format.printf "size -> %i\n" (size t)
 let _ = show (L 1)
 let _ = show (L 2)
 
@@ -27,12 +28,23 @@ let _ = show (r_build [1;2;3;4])
 
 let rec upto n = if n == 0 then [0] else n::(upto (n-1))
     
-let _ = show (r_build (upto 16))
-let _ = show (r_build (upto 16))
-let _ = show (r_build (upto 16))
-let _ = show (r_build (upto 16))
-(*let _ = show (r_build (upto 16))
-let _ = show (r_build (upto 16))
-let _ = show (r_build (upto 16)) *)
-
+let _ = Format.print_string "---- 2^4 leafs ------"
+let _ = show  (r_build (upto 16))
+let _ = show ~b:false (r_build (upto 16))
+let _ = show ~b:false (r_build (upto 16))
+let _ = Format.print_string "---- 2^5 leafs ------"
+let _ = show ~b:false (r_build (upto 32)) 
+let _ = show ~b:false (r_build (upto 32)) 
+let _ = Format.print_string "---- 2^6 leafs ------"
+let _ = show ~b:false (r_build (upto 64)) 
+let _ = show ~b:false (r_build (upto 64)) 
+let _ = show ~b:false (r_build (upto 64)) 
+let _ = Format.print_string "---- 2^8 leafs ------"
+let _ = show ~b:false (r_build (upto 256)) 
+let _ = show ~b:false (r_build (upto 256)) 
+let _ = show ~b:false (r_build (upto 256)) 
+let _ = Format.print_string "---- 2^10 leafs ------"
+let _ = show ~b:false (r_build (upto 1024)) 
+let _ = show ~b:false (r_build (upto 1024)) 
+let _ = show ~b:false (r_build (upto 1024)) 
 let _ = Printf.printf "%010i" 105
