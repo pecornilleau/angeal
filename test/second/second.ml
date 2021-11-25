@@ -1,6 +1,6 @@
 open Angeal
-open Mtree
-
+module MyTree = Mtree.Make (Mtree.Trivial_Hash)
+open MyTree
 let check_ok t () = Alcotest.(check bool) "" true (check t) 
 let check_ko t () = Alcotest.(check bool) "" false (check t) 
 
@@ -91,6 +91,7 @@ let () =
           test_case ""     `Quick (get_proof_ok 1 (Leaf 1) [] [] true);
           test_case ""     `Quick (get_proof_ok 1 t12 [hash 2] [L] true);
           test_case ""     `Quick (get_proof_ok 2 (Leaf 1) [] [] false);
+
           test_case ""     `Quick (get_proof_ok 1 t18 [hash 2;get_hash t34;get_hash t58] [L;L;L] true);
           test_case ""     `Quick (get_proof_ok 10 t18 [] [] false);
           test_case ""     `Quick (get_proof_ok 3 t18 [hash 4;get_hash t12;get_hash t58] [L;R;L] true);

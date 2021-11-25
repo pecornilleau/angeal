@@ -1,6 +1,7 @@
 open Angeal
 
-open Mtree
+module MyTree = Mtree.Make (Mtree.Trivial_Hash)
+open MyTree
 let show ?(b = true) t = 
     Format.printf "----------------\n";
     if b then Mtprint.pprint t;
