@@ -18,6 +18,8 @@ sig
 
     (* tree definition *)
     type 'a mt = Leaf of 'a |  Node of h * 'a mt * 'a mt
+
+    (* tree building *)
     val build_node : 'a mt -> 'a mt -> 'a mt
     val insert : 'a -> 'a mt -> 'a mt
     val build : 'a list -> 'a mt

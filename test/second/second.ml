@@ -41,6 +41,14 @@ let test_get_proof value tree expected_hashes expected_trail expected_found =
 
 let get_proof_ok value tree expected_hashes expected_trail expected_found () = Alcotest.(check bool) "" true (test_get_proof value tree expected_hashes expected_trail expected_found )
 
+
+let random_test size value =
+  let tree = build (upto size) in
+  let _,hashes,trail = get_proof  value tree in
+  check_is_at (get_hash tree) hashes trail value
+
+let check_random ok size value () = Alcotest.(check bool) "" ok (random_test size value)  
+
 (* Run it *)
 let () =
   let open Alcotest in
@@ -95,6 +103,12 @@ let () =
           test_case ""     `Quick (get_proof_ok 1 t18 [hash 2;get_hash t34;get_hash t58] [L;L;L] true);
           test_case ""     `Quick (get_proof_ok 10 t18 [] [] false);
           test_case ""     `Quick (get_proof_ok 3 t18 [hash 4;get_hash t12;get_hash t58] [L;R;L] true);
+      ];
+      "random proof", [
+          test_case ""     `Quick (check_random true 10 5);
+          test_case ""     `Quick (check_random true 10 1);
+          test_case ""     `Quick (check_random false 10 11);
+          test_case ""     `Quick (check_random true 100 55);
       ];
 
     ];
