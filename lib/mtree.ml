@@ -123,3 +123,32 @@ let check_is_at ?(debug=false) root hashes trail data =
     if debug then Printf.printf "root %s\n" root;
     computed_root = root
 
+let rec search value tree =
+    match tree with
+        | Leaf v -> v=value,[]
+        | Node (_,l,r) -> 
+            let found_l,trail_l = search value l in
+            if found_l 
+                then (true,L::trail_l)
+            else
+            let found_r,trail_r = search value r in
+            if found_r 
+                then (true,R::trail_r)
+            else (false,[])    
+
+let get_proof value tree = 
+    let rec reverse_proof value tree = 
+    match tree with
+        | Leaf v -> v=value,[],[]
+        | Node (_,l,r) -> 
+            let found,hashes,trail = reverse_proof value l in
+            if found 
+                then true,get_hash r::hashes,L::trail
+            else
+            let found,hashes,trail = reverse_proof value r in
+            if found
+                then true,get_hash l::hashes,R::trail
+            else false,[],[]
+    in
+    let found,hashes,trail = reverse_proof value tree in
+    found, List.rev hashes, List.rev trail

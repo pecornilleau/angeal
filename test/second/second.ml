@@ -13,17 +13,33 @@ let t78 = build_node (Leaf 7) (Leaf 8)
 
 let t14 = build_node t12 t34
 let t58 = build_node t56 t78
-let tree = build_node t14 t58
+let t18 = build_node t14 t58
 (* 
        ^
    ^       ^
  ^   ^   ^   ^
 1 2 3 4 5 6 7 8 
 *)
-let root = get_hash tree
+let root = get_hash t18
 
 let check_is_at_ok  v trail hashes () =  Alcotest.(check bool) "" true (check_is_at root hashes trail v) 
 let check_is_at_ko  v trail hashes () =  Alcotest.(check bool) "" false (check_is_at root hashes trail v) 
+let rec list_compare l1 l2 = match l1,l2 with 
+  | [],[] -> true
+  |t1::q1,t2::q2 -> t1=t2 && (list_compare q1 q2)
+  | _ -> false
+
+let test_search value tree expected_trail expected_b = 
+  let found,trail = search value tree in
+  found = expected_b && (list_compare trail expected_trail)
+  
+let search_ok value tree expected_trail expected_b () = Alcotest.(check bool) "" true (test_search value tree expected_trail expected_b)
+
+let test_get_proof value tree expected_hashes expected_trail expected_found =
+  let found,hashes,trail = get_proof value tree in
+  found = expected_found && (list_compare hashes expected_hashes)&& (list_compare trail expected_trail) 
+
+let get_proof_ok value tree expected_hashes expected_trail expected_found () = Alcotest.(check bool) "" true (test_get_proof value tree expected_hashes expected_trail expected_found )
 
 (* Run it *)
 let () =
@@ -32,7 +48,7 @@ let () =
       "check", [
           test_case ""     `Quick (check_ok (Leaf 1));
           test_case ""     `Quick (check_ok (Node (hash ((hash 1)^(hash 2)),Leaf 1,Leaf 2) ));          
-          test_case ""     `Quick (check_ok tree);
+          test_case ""     `Quick (check_ok t18);
 
           (* wrong leaves *)
           test_case ""     `Quick (check_ko (Node (hash ((hash 1)^(hash 2)),Leaf 3,Leaf 2) ));
@@ -45,8 +61,8 @@ let () =
       "random", [
           test_case ""     `Quick (check_ok (build (upto 16)));
           test_case ""     `Quick (check_ok (build (upto 32)));
-          test_case ""     `Quick (check_ok (build (upto 1024)));
-          test_case ""     `Quick (check_ok (build (upto 16384)));
+          (* test_case ""     `Slow (check_ok (build (upto 1024))); *)
+          (* test_case ""     `Slow (check_ok (build (upto 16384))); *)
       ];
       "is at", [
           test_case ""     `Quick (check_is_at_ok 1 [L;L;L] [hash 2;get_hash t34;get_hash t58]);
@@ -62,4 +78,22 @@ let () =
           (* wrong trail *)
           test_case ""     `Quick (check_is_at_ko 1 [L;R;L] [hash 2;get_hash t34;get_hash t58]);
       ];
+      "search", [
+          test_case ""     `Quick (search_ok 1 t18 [L;L;L] true);
+          test_case ""     `Quick (search_ok 10 t18 [] false);
+          test_case ""     `Quick (search_ok 2 t18 [L;L;R] true);
+          test_case ""     `Quick (search_ok 6 t18 [R;L;R] true);
+
+          test_case ""     `Quick (search_ok 1 (Leaf 1) [] true);
+          test_case ""     `Quick (search_ok 1 (Leaf 2) [] false);
+      ];
+      "get_proof", [
+          test_case ""     `Quick (get_proof_ok 1 (Leaf 1) [] [] true);
+          test_case ""     `Quick (get_proof_ok 1 t12 [hash 2] [L] true);
+          test_case ""     `Quick (get_proof_ok 2 (Leaf 1) [] [] false);
+          test_case ""     `Quick (get_proof_ok 1 t18 [hash 2;get_hash t34;get_hash t58] [L;L;L] true);
+          test_case ""     `Quick (get_proof_ok 10 t18 [] [] false);
+          test_case ""     `Quick (get_proof_ok 3 t18 [hash 4;get_hash t12;get_hash t58] [L;R;L] true);
+      ];
+
     ];
