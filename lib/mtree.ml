@@ -131,7 +131,7 @@ struct
             | _ -> raise (Failure "inconsistent nb of hashes for given trail")
         in
         let computed_root = follow hashes trail (hash data) in
-        if debug then Printf.printf "root? %s\n" (print_hash computed_root);
+        if debug then Printf.printf "(computed root %s)\n" (print_hash computed_root);
         if debug then Printf.printf "root %s\n" (print_hash root);
         computed_root = root
 

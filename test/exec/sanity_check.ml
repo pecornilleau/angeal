@@ -2,6 +2,7 @@ open Angeal
 
 module MyTree = Mtree.Make (Mtree.Trivial_Hash)
 open MyTree
+
 let show ?(b = true) t = 
     Format.printf "----------------\n";
     if b then Mtprint.pprint t;
@@ -47,10 +48,12 @@ let _ = show ~b:false (build (upto 256))
 let _ = show ~b:false (build (upto 256)) 
 let _ = Format.print_string "---- 2^10 leafs ------"
 let _ = show ~b:false (build (upto 1024)) 
-let _ = show ~b:false (build (upto 1024)) 
-let _ = show ~b:false (build (upto 1024)) 
+let _ = Format.print_string "---- 2^14 leafs ------"
+let _ = show ~b:false (build (upto 16384)) 
 
 
+
+let _ = Format.print_string "---- balanced tree 1 to 8 ------\n"
 
 let t12 = build_node (Leaf 1) (Leaf 2)
 let t34 = build_node (Leaf 3) (Leaf 4)
@@ -59,6 +62,9 @@ let t78 = build_node (Leaf 7) (Leaf 8)
 
 let t14 = build_node t12 t34
 let t58 = build_node t56 t78
-let tree = build_node t14 t58
+let t18 = build_node t14 t58
 
-let _ = check_is_at ~debug:true (get_hash tree)  [hash 2;get_hash t34;get_hash t58]  [L;L;L] 1
+let _ = Mtprint.pprint t18
+let _ = Format.print_string "---- check proof of 1  ------\n"
+
+let _ = check_is_at ~debug:true (get_hash t18)  [hash 2;get_hash t34;get_hash t58]  [L;L;L] 1
