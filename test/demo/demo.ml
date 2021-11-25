@@ -17,16 +17,16 @@ let _ = Mtprint.pprint tree
 let _ = printf "root : %s\n" (Merkle.print_hash (Merkle.get_hash tree))
 
 (* You can check a tree is well formed (hashes are good) *)
-let _ = printf "--------------------\n"
 let is_wf = Merkle.check tree
+let _ = printf "--------------------\n"
 let _ = printf "is it well formed : %b\n" is_wf
 
 (* You can insert something in it *)
+let tree2 = Merkle.insert 11 tree
+let root2 = Merkle.get_hash tree2
 let _ = printf "--------------------\n"
 let _ = printf "let's add 11\n"
-let tree2 = Merkle.insert 11 tree
 let _ = Mtprint.pprint tree2
-let root2 = Merkle.get_hash tree2
 let _ = printf "new root : %s\n" (Merkle.print_hash root2)
 let _ = printf "--------------------\n"
 let _ = printf "is it still well formed : %b\n" (Merkle.check tree2)
